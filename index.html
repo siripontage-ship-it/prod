@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เครื่องตรวจกลิ่นห้องน้ำ · Air Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="panel">
+
+  <header class="topbar">
+    <div class="topbar-id">
+      <span class="dot" id="connDot"></span>
+      <div>
+        <h1>Air Watch</h1>
+        <p id="connLabel">ยังไม่ได้เชื่อมต่อบอร์ด</p>
+      </div>
+    </div>
+    <div class="topbar-clock" id="clock">--:--:--</div>
+  </header>
+
+  <main class="stage">
+
+    <section class="reading">
+      <div class="gauge-wrap">
+        <svg class="gauge" viewBox="0 0 220 220">
+          <circle class="gauge-track" cx="110" cy="110" r="92"></circle>
+          <circle class="gauge-fill" id="gaugeFill" cx="110" cy="110" r="92"></circle>
+        </svg>
+        <div class="gauge-center">
+          <span class="gauge-value" id="rawValue">----</span>
+          <span class="gauge-unit">MQ-135 raw</span>
+        </div>
+      </div>
+
+      <div class="status-block">
+        <span class="status-eyebrow">สถานะห้องน้ำตอนนี้</span>
+        <h2 class="status-text" id="statusText">รอข้อมูล</h2>
+        <p class="status-detail" id="statusDetail">ยังไม่ได้รับค่าจากเซนเซอร์</p>
+        <button class="btn-ghost" id="notifBtn">เปิดการแจ้งเตือนในเบราว์เซอร์</button>
+      </div>
+    </section>
+
+    <section class="card summary-card">
+      <div class="section-head">
+        <h3>สรุปผลอัตโนมัติ</h3>
+        <button class="btn-text" id="resetSummaryBtn">รีเซ็ตข้อมูลสรุป</button>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-label">ค่าเฉลี่ย</span>
+          <span class="summary-value" id="summaryAvg">--</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">ต่ำสุด</span>
+          <span class="summary-value" id="summaryMin">--</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">สูงสุด</span>
+          <span class="summary-value" id="summaryMax">--</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">จำนวนค่าที่เก็บ</span>
+          <span class="summary-value" id="summaryCount">0</span>
+        </div>
+      </div>
+      <div class="summary-bars">
+        <div class="summary-bar-row">
+          <span>อากาศดี</span>
+          <div class="summary-bar"><div class="summary-bar-fill fresh" id="barFresh"></div></div>
+          <span id="pctFresh">0%</span>
+        </div>
+        <div class="summary-bar-row">
+          <span>ปานกลาง</span>
+          <div class="summary-bar"><div class="summary-bar-fill moderate" id="barModerate"></div></div>
+          <span id="pctModerate">0%</span>
+        </div>
+        <div class="summary-bar-row">
+          <span>เหม็นเกินไป</span>
+          <div class="summary-bar"><div class="summary-bar-fill poor" id="barPoor"></div></div>
+          <span id="pctPoor">0%</span>
+        </div>
+      </div>
+      <p class="summary-text" id="summaryText">ยังไม่มีข้อมูลเพียงพอสำหรับสรุปผล เริ่มเชื่อมต่อบอร์ดเพื่อเก็บค่า</p>
+
+      <div class="ai-block">
+        <button class="btn-solid" id="aiAnalyzeBtn">ให้ AI ช่วยสรุปแนวโน้ม (Gemini)</button>
+        <h1><p class="hint">AI จะอ่านค่าเฉลี่ย/ต่ำสุด/สูงสุด/สัดส่วนเวลาด้านบน แล้วช่วยตีความและแนะนำเป็นภาษาคน</p></h1>
+        <p class="hint" id="aiQuotaHint"></p>
+        <div class="ai-result" id="aiResultText">ยังไม่ได้ขอให้ AI วิเคราะห์</div>
+      </div>
+    </section>
+
+    <section class="lower-grid">
+
+      <div class="card connect-card">
+        <div class="section-head">
+          <h3>ตั้งค่าการเชื่อมต่อ</h3>
+        </div>
+
+        <div class="mode-toggle" role="tablist">
+          <button class="mode-btn active" id="modeUsbBtn" role="tab" aria-selected="true">USB</button>
+          <button class="mode-btn" id="modeBlynkBtn" role="tab" aria-selected="false">ออนไลน์ (Blynk)</button>
+        </div>
+
+        <!-- ---------- USB panel ---------- -->
+        <div class="mode-panel" id="usbPanel">
+          <p class="hint">
+            เสียบ ESP32 เข้ากับโน้ตบุ๊คด้วยสาย Micro USB แล้วกดปุ่มด้านล่าง —
+            เบราว์เซอร์จะเปิดหน้าต่างให้เลือกพอร์ต (COMx) รองรับเฉพาะ
+            <strong>Chrome หรือ Edge</strong> เท่านั้น และ<strong>ต้องปิดหน้าต่าง
+            Serial Monitor ใน Arduino IDE ก่อน</strong> ไม่งั้นจะเชื่อมต่อไม่ติด
+            เพราะพอร์ตเดียวใช้พร้อมกันสองโปรแกรมไม่ได้
+          </p>
+          <button class="btn-solid" id="connectSerialBtn">เชื่อมต่อบอร์ด (USB)</button>
+          <button class="btn-ghost" id="disconnectSerialBtn" style="margin-top:8px; display:none;">ตัดการเชื่อมต่อ</button>
+        </div>
+
+        <!-- ---------- Blynk (online) panel ---------- -->
+        <div class="mode-panel" id="blynkPanel" style="display:none;">
+          <p class="hint">
+            ใช้วิธีนี้เมื่อ ESP32 เชื่อมต่อ WiFi และส่งค่าขึ้น Blynk Cloud อยู่แล้ว
+            (ตามโค้ด <code>Blynk.virtualWrite(...)</code> ในสเก็ตช์) หน้านี้จะดึงค่า
+            ล่าสุดจาก Blynk Cloud มาแสดงผลโดยตรง ไม่ต้องเสียบสาย USB
+          </p>
+          <label class="field">
+            <span>Blynk Auth Token</span>
+            <input type="text" id="blynkTokenInput" placeholder="เช่น RJe5ahJQpLI5mquper5yiI344chgsOQM" autocomplete="off">
+          </label>
+          <label class="field">
+            <span>Virtual Pin</span>
+            <input type="text" id="blynkPinInput" placeholder="เช่น V0" value="V0">
+          </label>
+          <label class="field">
+            <span>ความถี่ในการอ่านค่า (วินาที)</span>
+            <input type="number" id="blynkIntervalInput" value="3" min="1">
+          </label>
+          <button class="btn-solid" id="connectBlynkBtn">บันทึกและเริ่มอ่านค่า</button>
+          <button class="btn-ghost" id="disconnectBlynkBtn" style="margin-top:8px; display:none;">ตัดการเชื่อมต่อ</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-head">
+          <h3>เกณฑ์การแจ้งเตือน</h3>
+        </div>
+        <label class="field">
+          <span>ต่ำกว่านี้ = อากาศดี (Fresh)</span>
+          <input type="number" id="freshInput" value="1200">
+        </label>
+        <label class="field">
+          <span>ต่ำกว่านี้ = ปานกลาง (Moderate)</span>
+          <input type="number" id="moderateInput" value="2500">
+        </label>
+        <p class="hint">สูงกว่าค่าปานกลาง = ห้องน้ำเหม็นเกินไป (Poor) และจะแจ้งเตือนทันที</p>
+        <button class="btn-solid" id="saveThresholdBtn">บันทึกเกณฑ์</button>
+      </div>
+
+      <div class="card log-card">
+        <div class="section-head">
+          <h3>ประวัติการแจ้งเตือน</h3>
+          <button class="btn-text" id="clearLogBtn">ล้างประวัติ</button>
+        </div>
+        <ul class="log-list" id="logList">
+          <li class="log-empty">ยังไม่มีการแจ้งเตือน</li>
+        </ul>
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+<audio id="alertSound" preload="auto">
+  <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+</audio>
+
+<script src="script.js"></script>
+</body>
+</html>
