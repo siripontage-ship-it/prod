@@ -20,7 +20,7 @@ const BAUD_RATE = 115200;          // must match Serial.begin(115200) in the Ard
 const GEMINI_MODEL = 'gemini-3.6-flash';
 
 // 🔑 ใส่ Gemini API Key ของคุณ
-const GEMINI_API_KEY = "AQ.Ab8RN6IqFYm-3OGRmavb1bUVF-QBhnD_fqzmv42qKXYQiaPcrg";
+const GEMINI_API_KEY = "AQ.Ab8RN6Li72V4-k0-Qa652xliypSR8EAYgGP7alb0okIJ8Ff-8w";
 
 // Matches a line like: "MQ-135 Analog Value : 1234"
 const VALUE_LINE = /Analog Value\s*:\s*(\d+)/i;
