@@ -411,10 +411,16 @@ async function analyzeWithGemini(isAutoTrigger = false) {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          // Google's newer "auth" API keys (the AQ.… format issued by AI
+          // Studio now) must be sent via this header — the old ?key=…
+          // query-string method only works with legacy "standard" keys.
+          'x-goog-api-key': GEMINI_API_KEY,
+        },
         body: JSON.stringify({ contents: [{ parts: [{ text: buildPrompt(stats) }] }] }),
       }
     );
